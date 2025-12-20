@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useCallback, useEffect } from 'react';
+import { getTestArray } from './utils';
+import { EXCEPTED_KEYS } from './constants';
+import styled from 'styled-components';
+import './App.css';
+
+import Char from './components/Char/Char';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [difficulty, setDifficulty] = useState('medium');
+  const [testArray, setTestArray] = useState(getTestArray('medium'));
+  const [mode, setMode] = useState('passage');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [accuracyArray, setAccuracyArray] = useState([]);
+
+  const currentChar = testArray[currentIndex];
+
+  const handleKeyDown = useCallback(
+    (event) => {
+      event.preventDefault();
+      const key = event.key;
+      console.log('keydown fired: ', key);
+      if (EXCEPTED_KEYS.includes(key)) return;
+      console.log('current char: ', currentChar);
+      setAccuracyArray((previous) => [...previous, key === currentChar]);
+      setCurrentIndex((previous) => previous + 1);
+    },
+    [currentChar]
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  function getCharStatus(index) {
+    if (index < currentIndex) {
+      return accuracyArray[index] ? 'correct' : 'incorrect';
+    }
+    if (index === currentIndex) return 'current';
+    return;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Wrapper>
+      {testArray.map((char, index) => {
+        return (
+          <Char key={index} status={getCharStatus(index)}>
+            {char}
+          </Char>
+        );
+      })}
+    </Wrapper>
+  );
 }
 
-export default App
+const Wrapper = styled.div`
+  background-color: var(--neutral-900);
+`;
+
+export default App;
