@@ -45,11 +45,7 @@ function App() {
   return (
     <Wrapper>
       {testArray.map((char, index) => {
-        return (
-          <Char key={index} status={getCharStatus(index)}>
-            {char}
-          </Char>
-        );
+        return <Char key={index} char={char} status={getCharStatus(index)} />;
       })}
     </Wrapper>
   );

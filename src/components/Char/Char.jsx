@@ -1,17 +1,18 @@
-import React from 'react';
+import { memo } from 'react';
 import styled from 'styled-components';
 
-function Char({ status, children }) {
+function Char({ status, char }) {
+  console.log('char re-render: ', char);
   if (status === 'current') {
-    return <Current>{children}</Current>;
+    return <Current>{char}</Current>;
   }
   if (status === 'correct') {
-    return <Correct>{children}</Correct>;
+    return <Correct>{char}</Correct>;
   }
   if (status === 'incorrect') {
-    return <Incorrect>{children}</Incorrect>;
+    return <Incorrect>{char}</Incorrect>;
   }
-  return <Base>{children}</Base>;
+  return <Base>{char}</Base>;
 }
 
 const Base = styled.span`
@@ -32,4 +33,4 @@ const Current = styled(Base)`
   background-color: hsl(240deg, 1%, 59%, 0.3);
 `;
 
-export default Char;
+export default memo(Char);
