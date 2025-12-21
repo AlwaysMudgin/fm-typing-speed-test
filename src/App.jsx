@@ -6,6 +6,7 @@ import './App.css';
 
 import restart from './assets/images/icon-restart.svg';
 
+import Header from './components/Header/Header';
 import Char from './components/Char/Char';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
       ]);
       if (currentIndex === testArray.length - 1) {
         setTestPhase(2);
+        setCurrentIndex(null);
         return;
       }
       setCurrentIndex((previous) => previous + 1);
@@ -114,6 +116,7 @@ function App() {
 
   return (
     <Wrapper>
+      <Header />
       <TopBar>
         <Info>
           <StatWrapper>
@@ -188,8 +191,8 @@ function App() {
       </Passage>
       {testPhase === 1 && (
         <RestartWrapper>
-          <RestartButton>
-            Restart Test <Restart src={restart} onClick={handleRestart} />
+          <RestartButton onClick={handleRestart}>
+            Restart Test <Restart src={restart} />
           </RestartButton>
         </RestartWrapper>
       )}
@@ -206,6 +209,7 @@ const TopBar = styled.div`
   display: flex;
   color: var(--neutral-400);
   justify-content: space-between;
+  padding: 1rem 0;
 `;
 
 const Info = styled.div`
@@ -230,7 +234,7 @@ const Stat = styled.p`
 `;
 
 const Divider = styled.div`
-  width: 2px;
+  width: 1px;
   height: 100%;
   background-color: var(--neutral-800);
 `;
@@ -253,7 +257,9 @@ const Button = styled.button`
 const Passage = styled.div`
   position: relative;
   font-size: 2.5rem;
-  padding-left: 0.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--neutral-800);
+  border-top: 1px solid var(--neutral-800);
 `;
 
 const StartDialog = styled.div`
@@ -264,6 +270,7 @@ const StartDialog = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
   width: 100%;
   height: 100%;
   background: transparent;
@@ -279,8 +286,9 @@ const StartDialog = styled.div`
 const StartButton = styled(Button)`
   background-color: var(--blue-600);
   color: white;
+  border: none;
   font-weight: bold;
-  padding: 2px 4px;
+  padding: 0.25rem 0.5rem;
 `;
 
 const StartText = styled.p`
@@ -290,8 +298,6 @@ const StartText = styled.p`
 const RestartWrapper = styled.div`
   display: flex;
   justify-content: center;
-  border-top: 1px solid var(--neutral-800);
-  padding-top: 1rem;
   margin-top: 2rem;
 `;
 
@@ -301,6 +307,7 @@ const RestartButton = styled(Button)`
   gap: 0.5rem;
   background-color: var(--neutral-800);
   border: none;
+  padding: 0.25rem 0.5rem;
 `;
 
 const Restart = styled.img`

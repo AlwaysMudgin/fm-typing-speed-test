@@ -12,6 +12,7 @@ function accuracyAccumulator(total, current) {
   } else {
     total.incorrect++;
   }
+  return total;
 }
 
 export function getAccuracyTotals(accuracyArray) {
