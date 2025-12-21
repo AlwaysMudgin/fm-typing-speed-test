@@ -2,7 +2,6 @@ import { memo } from 'react';
 import styled from 'styled-components';
 
 function Char({ status, char }) {
-  console.log('char re-render: ', char);
   if (status === 'current') {
     return <Current>{char}</Current>;
   }

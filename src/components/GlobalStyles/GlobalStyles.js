@@ -78,6 +78,18 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Sora", sans-serif;
 }
 
+html, body, #root {
+  width: 100vw;
+  height: 100dvh;
+  background-color: var(--neutral-900);
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 `;
 
 export default GlobalStyles;
