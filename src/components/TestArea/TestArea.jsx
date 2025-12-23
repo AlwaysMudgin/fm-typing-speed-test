@@ -262,6 +262,7 @@ function TestArea({ best, newBest }) {
   function handleRestart() {
     setCurrentIndex(0);
     setAccuracyArray([]);
+    setInputArray([]);
     setTime(TIMER_SECONDS);
     setNumWords(0);
     setTestPhase(0);
