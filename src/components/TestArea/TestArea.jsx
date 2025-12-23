@@ -145,8 +145,8 @@ function TestArea() {
       event.preventDefault();
       const key = event.key;
       if (EXCEPTED_KEYS.includes(key)) return;
-
-      if (key === 'Backspace' && currentIndex > 0) {
+      if (key === 'Backspace' && currentIndex === 0) return;
+      if (key === 'Backspace') {
         setInputArray((previous) => [...previous.slice(0, -1)]);
         setCurrentIndex((previous) => previous - 1);
         return;
