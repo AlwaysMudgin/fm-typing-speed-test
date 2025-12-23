@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { EXCEPTED_KEYS } from '../../constants';
+import { EXCEPTED_KEYS, TIMER_SECONDS } from '../../constants';
 import {
   getAccuracyTotals,
   getTestArray,
@@ -148,7 +148,7 @@ function TestArea({ best, newBest }) {
   const [mode, setMode] = useState('timed');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [accuracyArray, setAccuracyArray] = useState([]);
-  const [time, setTime] = useState(60);
+  const [time, setTime] = useState(TIMER_SECONDS);
   const [numWords, setNumWords] = useState(0);
   const [testPhase, setTestPhase] = useState(0);
 
@@ -222,7 +222,7 @@ function TestArea({ best, newBest }) {
     if (testPhase === 1 && mode === 'timed') {
       timer = setTimeout(() => {
         setTestPhase(2);
-      }, 60000);
+      }, TIMER_SECONDS * 1000);
     }
 
     return () => {
@@ -262,7 +262,7 @@ function TestArea({ best, newBest }) {
   function handleRestart() {
     setCurrentIndex(0);
     setAccuracyArray([]);
-    setTime(60);
+    setTime(TIMER_SECONDS);
     setNumWords(0);
     setTestPhase(0);
   }
