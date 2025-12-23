@@ -10,6 +10,7 @@ import {
 } from '../../utils';
 
 import restartIcon from '../../assets/images/icon-restart.svg';
+import completedIcon from '../../assets/images/icon-completed.svg';
 
 import Char from '../Char/Char';
 
@@ -87,6 +88,38 @@ function StatsAndOptions({
   );
 }
 
+function EndScreen({ wpm, accuracy, restart }) {
+  return (
+    <EndWrapper>
+      <Circles>
+        <CheckIcon src={completedIcon} />
+      </Circles>
+      <EndHeading>Test Complete!</EndHeading>
+      <EndText>Solid run. Keep pushing to beat your high score.</EndText>
+      <EndStats>
+        <EndStat>
+          <Label>WPM:</Label>
+          <Stat>{wpm}</Stat>
+        </EndStat>
+        <EndStat>
+          <Label>Accuracy:</Label>
+          <Stat>{accuracy.percentage}%</Stat>
+        </EndStat>
+        <EndStat>
+          <Label>Characters:</Label>
+          <Stat>
+            <Correct>{accuracy.correct}</Correct>/
+            <Incorrect>{accuracy.incorrect}</Incorrect>
+          </Stat>
+        </EndStat>
+      </EndStats>
+      <Again onClick={restart}>
+        Go Again <Restart src={restartIcon} />
+      </Again>
+    </EndWrapper>
+  );
+}
+
 function TestArea() {
   const [difficulty, setDifficulty] = useState('medium');
   const [testArray, setTestArray] = useState(getTestArray('medium'));
@@ -100,8 +133,8 @@ function TestArea() {
 
   console.log(numWords);
 
-  const accuracy = useMemo(
-    () => getAccuracyTotals(accuracyArray).percentage,
+  const { correct, incorrect, percentage } = useMemo(
+    () => getAccuracyTotals(accuracyArray),
     [accuracyArray]
   );
   const wpm = useMemo(() => getWpm(numWords, time), [numWords, time]);
@@ -214,11 +247,12 @@ function TestArea() {
     setNumWords(0);
     setTestPhase(0);
   }
+
   return (
-    <>
+    <Wrapper>
       <StatsAndOptions
         wpm={wpm}
-        accuracy={accuracy}
+        accuracy={percentage}
         time={time}
         difficulty={difficulty}
         mode={mode}
@@ -243,9 +277,20 @@ function TestArea() {
           </RestartButton>
         </RestartWrapper>
       )}
-    </>
+      {testPhase === 2 && (
+        <EndScreen
+          wpm={wpm}
+          accuracy={{ correct, incorrect, percentage }}
+          restart={handleRestart}
+        />
+      )}
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.main`
+  position: relative;
+`;
 
 const TopBar = styled.div`
   display: flex;
@@ -266,7 +311,9 @@ const StatWrapper = styled.div`
   align-items: center;
 `;
 
-const Label = styled.p``;
+const Label = styled.p`
+  color: var(--neutral-400);
+`;
 
 const Stat = styled.p`
   display: flex;
@@ -355,6 +402,80 @@ const RestartButton = styled(Button)`
 const Restart = styled.img`
   display: inline-flex;
   align-items: center;
+`;
+
+const EndWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--neutral-900);
+`;
+
+const Circles = styled.div`
+  --dimensions: 8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--dimensions);
+  height: var(--dimensions);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsla(140deg, 63%, 57%, 0.4) 25%,
+    hsla(140deg, 63%, 57%, 0.4) 55%,
+    hsla(140deg, 63%, 57%, 0.2) 55%,
+    hsla(140deg, 63%, 57%, 0.2) 100%
+  );
+`;
+
+const CheckIcon = styled.img`
+  --dimensions: 4rem;
+  width: var(--dimensions);
+  height: var(--dimensions);
+`;
+
+const EndHeading = styled.h1`
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  line-height: 1.36;
+`;
+
+const EndText = styled.p`
+  color: var(--neutral-400);
+  margin-bottom: 1rem;
+`;
+
+const EndStats = styled.div`
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+`;
+
+const EndStat = styled.div`
+  border: 1px solid var(--neutral-500);
+  flex-grow: 1;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+`;
+
+const Correct = styled.span`
+  color: var(--green);
+`;
+
+const Incorrect = styled.span`
+  color: var(--red);
+`;
+
+const Again = styled(RestartButton)`
+  color: var(--neutral-900);
+  background-color: white;
 `;
 
 export default TestArea;
