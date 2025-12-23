@@ -59,6 +59,8 @@ Using memoization to optimize test text re-renders on state changes.
 
 Using useCallback hook to keep handleKeyDown in sync with the state-derived current character.
 
+Using Vercel for deployment.
+
 ### Continued development
 
 Use this section to outline areas that you want to continue focusing on in future projects. These could be concepts you're still not completely comfortable with or techniques you found useful that you want to refine and perfect.
