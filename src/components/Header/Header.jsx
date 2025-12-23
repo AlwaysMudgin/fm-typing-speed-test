@@ -5,12 +5,12 @@ import logoLg from '../../assets/images/logo-large.svg';
 // import logoSm from '../../assets/images/logo-small.svg';
 import pbIcon from '../../assets/images/icon-personal-best.svg';
 
-function Header() {
+function Header({ best }) {
   return (
     <Wrapper>
       <Left src={logoLg} />
       <Right>
-        <Trophy src={pbIcon} /> Personal Best: <Best>100 WPM</Best>
+        <Trophy src={pbIcon} /> Personal Best: <Best>{best} WPM</Best>
       </Right>
     </Wrapper>
   );

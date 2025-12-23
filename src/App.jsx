@@ -1,3 +1,4 @@
+import useLocalStorage from './hooks/useLocalStorage';
 import styled from 'styled-components';
 import './App.css';
 
@@ -5,10 +6,12 @@ import Header from './components/Header/Header';
 import TestArea from './components/TestArea/TestArea';
 
 function App() {
+  const [personalBest, setPersonalBest] = useLocalStorage('personal-best', 0);
+  console.log(personalBest);
   return (
     <Wrapper>
-      <Header />
-      <TestArea />
+      <Header best={personalBest} />
+      <TestArea best={personalBest} newBest={setPersonalBest} />
     </Wrapper>
   );
 }

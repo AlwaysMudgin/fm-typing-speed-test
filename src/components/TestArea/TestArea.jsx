@@ -11,6 +11,7 @@ import {
 
 import restartIcon from '../../assets/images/icon-restart.svg';
 import completedIcon from '../../assets/images/icon-completed.svg';
+import newPersonalBestIcon from '../../assets/images/icon-new-pb.svg';
 
 import Char from '../Char/Char';
 
@@ -88,14 +89,31 @@ function StatsAndOptions({
   );
 }
 
-function EndScreen({ wpm, accuracy, restart }) {
+function EndScreen({ wpm, accuracy, restart, best, newBest }) {
+  const isBest = useMemo(() => wpm > best, []);
+
+  if (isBest) {
+    newBest(wpm);
+  }
+
   return (
     <EndWrapper>
-      <Circles>
-        <CheckIcon src={completedIcon} />
-      </Circles>
-      <EndHeading>Test Complete!</EndHeading>
-      <EndText>Solid run. Keep pushing to beat your high score.</EndText>
+      {isBest ? (
+        <CheckIcon src={newPersonalBestIcon} />
+      ) : (
+        <Circles>
+          <CheckIcon src={completedIcon} />
+        </Circles>
+      )}
+
+      <EndHeading>
+        {isBest ? 'High Score Smashed!' : 'Test Complete!'}
+      </EndHeading>
+      <EndText>
+        {isBest
+          ? "You're getting faster. That was incredible typing."
+          : 'Solid run. Keep pushing to beat your high score.'}
+      </EndText>
       <EndStats>
         <EndStat>
           <Label>WPM:</Label>
@@ -114,13 +132,13 @@ function EndScreen({ wpm, accuracy, restart }) {
         </EndStat>
       </EndStats>
       <Again onClick={restart}>
-        Go Again <Restart src={restartIcon} />
+        {isBest ? 'Beat This Score' : 'Go Again'} <Restart src={restartIcon} />
       </Again>
     </EndWrapper>
   );
 }
 
-function TestArea() {
+function TestArea({ best, newBest }) {
   const [difficulty, setDifficulty] = useState('medium');
   const [testArray, setTestArray] = useState(getTestArray('medium'));
   const [inputArray, setInputArray] = useState([]);
@@ -130,8 +148,6 @@ function TestArea() {
   const [time, setTime] = useState(60);
   const [numWords, setNumWords] = useState(0);
   const [testPhase, setTestPhase] = useState(0);
-
-  console.log(numWords);
 
   const { correct, incorrect, percentage } = useMemo(
     () => getAccuracyTotals(accuracyArray),
@@ -282,6 +298,8 @@ function TestArea() {
           wpm={wpm}
           accuracy={{ correct, incorrect, percentage }}
           restart={handleRestart}
+          best={best}
+          newBest={newBest}
         />
       )}
     </Wrapper>
