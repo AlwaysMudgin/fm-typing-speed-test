@@ -91,6 +91,9 @@ function StatsAndOptions({
 
 function EndScreen({ wpm, accuracy, restart, best, newBest }) {
   const isBest = useMemo(() => wpm > best, []);
+  // This feels hacky and the safety protocols hate it - is there a better
+  // way to update the personal best state without destroying the conditional
+  // end screen based on original value?
 
   if (isBest) {
     newBest(wpm);
