@@ -90,12 +90,15 @@ function StatsAndOptions({
 function TestArea() {
   const [difficulty, setDifficulty] = useState('medium');
   const [testArray, setTestArray] = useState(getTestArray('medium'));
+  const [inputArray, setInputArray] = useState([]);
   const [mode, setMode] = useState('timed');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [accuracyArray, setAccuracyArray] = useState([]);
   const [time, setTime] = useState(60);
   const [numWords, setNumWords] = useState(0);
   const [testPhase, setTestPhase] = useState(0);
+
+  console.log(numWords);
 
   const accuracy = useMemo(
     () => getAccuracyTotals(accuracyArray).percentage,
@@ -109,21 +112,37 @@ function TestArea() {
       event.preventDefault();
       const key = event.key;
       if (EXCEPTED_KEYS.includes(key)) return;
-      if (testArray[currentIndex] === ' ') {
+
+      if (key === 'Backspace' && currentIndex > 0) {
+        setInputArray((previous) => [...previous.slice(0, -1)]);
+        setCurrentIndex((previous) => previous - 1);
+        return;
+      }
+
+      if (
+        testArray[currentIndex] === ' ' &&
+        currentIndex > accuracyArray.length - 1
+      ) {
         setNumWords((previous) => previous + 1);
       }
-      setAccuracyArray((previous) => [
-        ...previous,
-        key === testArray[currentIndex],
-      ]);
+
+      setInputArray((previous) => [...previous, key]);
+
+      if (currentIndex > accuracyArray.length - 1) {
+        setAccuracyArray((previous) => [
+          ...previous,
+          key === testArray[currentIndex],
+        ]);
+      }
+
       if (currentIndex === testArray.length - 1) {
         setTestPhase(2);
-        setCurrentIndex(null);
+        setCurrentIndex(0);
         return;
       }
       setCurrentIndex((previous) => previous + 1);
     },
-    [testPhase, testArray, currentIndex]
+    [accuracyArray, testPhase, testArray, currentIndex]
   );
 
   useEffect(() => {
@@ -169,7 +188,7 @@ function TestArea() {
 
   function getCharStatus(index) {
     if (index < currentIndex) {
-      return accuracyArray[index] ? 'correct' : 'incorrect';
+      return inputArray[index] === testArray[index] ? 'correct' : 'incorrect';
     }
     if (index === currentIndex) return 'current';
     return;
