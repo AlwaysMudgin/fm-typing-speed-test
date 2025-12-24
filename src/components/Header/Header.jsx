@@ -27,6 +27,7 @@ const Left = styled.img``;
 const Right = styled.div`
   display: flex;
   align-items: center;
+  gap: 8px;
   color: var(--neutral-400);
 `;
 

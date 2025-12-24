@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 import { EXCEPTED_KEYS, TIMER_SECONDS } from '../../constants';
 import {
@@ -12,6 +12,7 @@ import {
 import restartIcon from '../../assets/images/icon-restart.svg';
 import completedIcon from '../../assets/images/icon-completed.svg';
 import newPersonalBestIcon from '../../assets/images/icon-new-pb.svg';
+import confetti from '../../assets/images/pattern-confetti.svg';
 
 import Char from '../Char/Char';
 
@@ -39,7 +40,7 @@ function StatsAndOptions({
         <Divider />
         <StatWrapper>
           <Label>Time:</Label>
-          <Stat>{mode === 'passage' ? '-:--' : formatTime(time)}</Stat>
+          <Stat>{formatTime(time)}</Stat>
         </StatWrapper>
       </Info>
       <Info>
@@ -90,56 +91,189 @@ function StatsAndOptions({
 }
 
 function EndScreen({ wpm, accuracy, restart, best, newBest }) {
-  const isBest = useMemo(() => wpm > best, []);
   // This feels hacky and the safety protocols hate it - is there a better
   // way to update the personal best state without destroying the conditional
   // end screen based on original value?
+  const isBest = useMemo(() => wpm > best, []);
 
   if (isBest) {
     newBest(wpm);
   }
 
   return (
-    <EndWrapper>
-      {isBest ? (
-        <CheckIcon src={newPersonalBestIcon} />
-      ) : (
-        <Circles>
-          <CheckIcon src={completedIcon} />
-        </Circles>
-      )}
+    <>
+      <EndWrapper>
+        {isBest ? (
+          <IconWrapper>
+            <CheckIcon src={newPersonalBestIcon} />
+          </IconWrapper>
+        ) : (
+          <Circles>
+            <CheckIcon src={completedIcon} />
+          </Circles>
+        )}
 
-      <EndHeading>
-        {isBest ? 'High Score Smashed!' : 'Test Complete!'}
-      </EndHeading>
-      <EndText>
-        {isBest
-          ? "You're getting faster. That was incredible typing."
-          : 'Solid run. Keep pushing to beat your high score.'}
-      </EndText>
-      <EndStats>
-        <EndStat>
-          <Label>WPM:</Label>
-          <Stat>{wpm}</Stat>
-        </EndStat>
-        <EndStat>
-          <Label>Accuracy:</Label>
-          <Stat>{accuracy.percentage}%</Stat>
-        </EndStat>
-        <EndStat>
-          <Label>Characters:</Label>
-          <Stat>
-            <Correct>{accuracy.correct}</Correct>/
-            <Incorrect>{accuracy.incorrect}</Incorrect>
-          </Stat>
-        </EndStat>
-      </EndStats>
-      <Again onClick={restart}>
-        {isBest ? 'Beat This Score' : 'Go Again'} <Restart src={restartIcon} />
-      </Again>
-    </EndWrapper>
+        <EndHeading>
+          {isBest ? 'High Score Smashed!' : 'Test Complete!'}
+        </EndHeading>
+        <EndText>
+          {isBest
+            ? "You're getting faster. That was incredible typing."
+            : 'Solid run. Keep pushing to beat your high score.'}
+        </EndText>
+        <EndStats>
+          <EndStat>
+            <Label>WPM:</Label>
+            <Stat>{wpm}</Stat>
+          </EndStat>
+          <EndStat>
+            <Label>Accuracy:</Label>
+            <Stat>{accuracy.percentage}%</Stat>
+          </EndStat>
+          <EndStat>
+            <Label>Characters:</Label>
+            <Stat>
+              <Correct>{accuracy.correct}</Correct>/
+              <Incorrect>{accuracy.incorrect}</Incorrect>
+            </Stat>
+          </EndStat>
+        </EndStats>
+        <Again onClick={restart}>
+          {isBest ? 'Beat This Score' : 'Go Again'}{' '}
+          <Restart src={restartIcon} />
+        </Again>
+      </EndWrapper>
+      {isBest && (
+        <ConfettiWrapper>
+          <Confetti src={confetti} />
+        </ConfettiWrapper>
+      )}
+    </>
   );
 }
+
+const EndWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--neutral-900);
+`;
+
+const IconWrapper = styled.div`
+  --dimensions: 7rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: var(--dimensions);
+  height: var(--dimensions);
+  border-radius: 50%;
+`;
+
+const Circles = styled(IconWrapper)`
+  background: radial-gradient(
+    circle,
+    hsla(140deg, 63%, 57%, 0.4) 25%,
+    hsla(140deg, 63%, 57%, 0.4) 55%,
+    hsla(140deg, 63%, 57%, 0.2) 55%,
+    hsla(140deg, 63%, 57%, 0.2) 100%
+  );
+`;
+
+const CheckIcon = styled.img`
+  --dimensions: 4rem;
+  width: var(--dimensions);
+  height: var(--dimensions);
+`;
+
+const EndHeading = styled.h1`
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  line-height: 1.36;
+`;
+
+const EndText = styled.p`
+  color: var(--neutral-400);
+  margin-bottom: 1rem;
+`;
+
+const EndStats = styled.div`
+  display: flex;
+  gap: 1.25rem;
+  margin: 1rem 0;
+`;
+
+const EndStat = styled.div`
+  border: 1px solid var(--neutral-500);
+  flex-grow: 1;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+`;
+
+const Correct = styled.span`
+  color: var(--green);
+`;
+
+const Incorrect = styled.span`
+  color: var(--red);
+`;
+
+const Button = styled.button`
+  background: none;
+  color: ${(props) => (props.$active ? 'var(--blue-400)' : 'white')};
+  font-weight: bold;
+  border: 1px solid var(--neutral-500);
+  border-radius: 8px;
+  width: max-content;
+
+  border-color: ${(props) =>
+    props.$active ? 'var(--blue-400)' : 'var(--neutral-500)'};
+
+  &:hover {
+    cursor: pointer;
+    color: var(--blue-400);
+    border-color: var(--blue-400);
+  }
+`;
+
+const RestartButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--neutral-800);
+  border: none;
+  padding: 0.25rem 0.5rem;
+`;
+
+const Again = styled(RestartButton)`
+  color: var(--neutral-900);
+  background-color: white;
+  margin-top: 1rem;
+`;
+
+const pop = keyframes`
+    from {
+      transform: translateY(100%) scale(1, 0);
+    }
+    to {
+      transform: translateY(0) scale(1, 1);
+    }
+`;
+
+const ConfettiWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+`;
+
+const Confetti = styled.img`
+  animation: ${pop} 1s forwards;
+`;
 
 function TestArea({ best, newBest }) {
   const [difficulty, setDifficulty] = useState('medium');
@@ -156,7 +290,10 @@ function TestArea({ best, newBest }) {
     () => getAccuracyTotals(accuracyArray),
     [accuracyArray]
   );
-  const wpm = useMemo(() => getWpm(numWords, time), [numWords, time]);
+  const wpm = useMemo(
+    () => getWpm(numWords, time, mode),
+    [numWords, time, mode]
+  );
 
   const handleKeyDown = useCallback(
     (event) => {
@@ -200,13 +337,23 @@ function TestArea({ best, newBest }) {
   useEffect(() => {
     let interval;
 
-    function updateTime() {
+    function timeDown() {
       setTime((prev) => prev - 1);
-      console.log('tick');
+      console.log('tick down');
     }
 
-    if (testPhase === 1 && mode === 'timed') {
-      interval = setInterval(updateTime, 1000);
+    function timeUp() {
+      setTime((prev) => prev + 1);
+      console.log('tick up');
+    }
+
+    if (testPhase === 1) {
+      if (mode === 'timed') {
+        interval = setInterval(timeDown, 1000);
+      }
+      if (mode === 'passage') {
+        interval = setInterval(timeUp, 1000);
+      }
     }
 
     return () => {
@@ -257,6 +404,10 @@ function TestArea({ best, newBest }) {
     if (next === mode) return;
     handleRestart();
     setMode(next);
+    if (next === 'timed') {
+      setTime(TIMER_SECONDS);
+    }
+    setTime(0);
   }
 
   function handleRestart() {
@@ -268,44 +419,50 @@ function TestArea({ best, newBest }) {
     setTestPhase(0);
   }
 
+  if (testPhase !== 2)
+    return (
+      <Wrapper>
+        <StatsAndOptions
+          wpm={wpm}
+          accuracy={percentage}
+          time={time}
+          difficulty={difficulty}
+          mode={mode}
+          changeDifficulty={changeDifficulty}
+          changeMode={changeMode}
+        />
+        <Passage>
+          {testArray.map((char, index) => {
+            return (
+              <Char key={index} char={char} status={getCharStatus(index)} />
+            );
+          })}
+          {testPhase === 0 && (
+            <StartDialog onClick={() => setTestPhase(1)}>
+              <StartButton>Start Typing Test</StartButton>
+              <StartText>Or click the text and start typing</StartText>
+            </StartDialog>
+          )}
+        </Passage>
+        {testPhase === 1 && (
+          <RestartWrapper>
+            <RestartButton onClick={handleRestart}>
+              Restart Test <Restart src={restartIcon} />
+            </RestartButton>
+          </RestartWrapper>
+        )}
+      </Wrapper>
+    );
+
   return (
     <Wrapper>
-      <StatsAndOptions
+      <EndScreen
         wpm={wpm}
-        accuracy={percentage}
-        time={time}
-        difficulty={difficulty}
-        mode={mode}
-        changeDifficulty={changeDifficulty}
-        changeMode={changeMode}
+        accuracy={{ correct, incorrect, percentage }}
+        restart={handleRestart}
+        best={best}
+        newBest={newBest}
       />
-      <Passage>
-        {testArray.map((char, index) => {
-          return <Char key={index} char={char} status={getCharStatus(index)} />;
-        })}
-        {testPhase === 0 && (
-          <StartDialog onClick={() => setTestPhase(1)}>
-            <StartButton>Start Typing Test</StartButton>
-            <StartText>Or click the text and start typing</StartText>
-          </StartDialog>
-        )}
-      </Passage>
-      {testPhase === 1 && (
-        <RestartWrapper>
-          <RestartButton onClick={handleRestart}>
-            Restart Test <Restart src={restartIcon} />
-          </RestartButton>
-        </RestartWrapper>
-      )}
-      {testPhase === 2 && (
-        <EndScreen
-          wpm={wpm}
-          accuracy={{ correct, incorrect, percentage }}
-          restart={handleRestart}
-          best={best}
-          newBest={newBest}
-        />
-      )}
     </Wrapper>
   );
 }
@@ -319,6 +476,8 @@ const TopBar = styled.div`
   color: var(--neutral-400);
   justify-content: space-between;
   padding: 1rem 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
 const Info = styled.div`
@@ -331,6 +490,7 @@ const StatWrapper = styled.div`
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
 const Label = styled.p`
@@ -340,7 +500,12 @@ const Label = styled.p`
 const Stat = styled.p`
   display: flex;
   gap: 6px;
-  color: white;
+  color: ${(props) =>
+    props.color === 'red'
+      ? 'var(--red)'
+      : props.color === 'yellow'
+      ? 'var(--yellow)'
+      : 'white'};
   font-weight: bold;
 `;
 
@@ -348,21 +513,6 @@ const Divider = styled.div`
   width: 1px;
   height: 100%;
   background-color: var(--neutral-800);
-`;
-
-const Button = styled.button`
-  background: none;
-  color: ${(props) => (props.$active ? 'var(--blue-400)' : 'white')};
-  font-weight: bold;
-  border: 1px solid var(--neutral-500);
-  border-radius: 8px;
-
-  border-color: ${(props) =>
-    props.$active ? 'var(--blue-400)' : 'var(--neutral-500)'};
-
-  &:hover {
-    cursor: pointer;
-  }
 `;
 
 const Passage = styled.div`
@@ -400,6 +550,11 @@ const StartButton = styled(Button)`
   border: none;
   font-weight: bold;
   padding: 0.25rem 0.5rem;
+
+  &:hover {
+    background-color: var(--blue-400);
+    color: white;
+  }
 `;
 
 const StartText = styled.p`
@@ -412,92 +567,9 @@ const RestartWrapper = styled.div`
   margin-top: 2rem;
 `;
 
-const RestartButton = styled(Button)`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--neutral-800);
-  border: none;
-  padding: 0.25rem 0.5rem;
-`;
-
 const Restart = styled.img`
   display: inline-flex;
   align-items: center;
-`;
-
-const EndWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--neutral-900);
-`;
-
-const Circles = styled.div`
-  --dimensions: 8rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: var(--dimensions);
-  height: var(--dimensions);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    hsla(140deg, 63%, 57%, 0.4) 25%,
-    hsla(140deg, 63%, 57%, 0.4) 55%,
-    hsla(140deg, 63%, 57%, 0.2) 55%,
-    hsla(140deg, 63%, 57%, 0.2) 100%
-  );
-`;
-
-const CheckIcon = styled.img`
-  --dimensions: 4rem;
-  width: var(--dimensions);
-  height: var(--dimensions);
-`;
-
-const EndHeading = styled.h1`
-  color: white;
-  font-size: 2.5rem;
-  font-weight: bold;
-  letter-spacing: 0.4px;
-  line-height: 1.36;
-`;
-
-const EndText = styled.p`
-  color: var(--neutral-400);
-  margin-bottom: 1rem;
-`;
-
-const EndStats = styled.div`
-  display: flex;
-  gap: 1.25rem;
-  margin-bottom: 1rem;
-`;
-
-const EndStat = styled.div`
-  border: 1px solid var(--neutral-500);
-  flex-grow: 1;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-`;
-
-const Correct = styled.span`
-  color: var(--green);
-`;
-
-const Incorrect = styled.span`
-  color: var(--red);
-`;
-
-const Again = styled(RestartButton)`
-  color: var(--neutral-900);
-  background-color: white;
 `;
 
 export default TestArea;

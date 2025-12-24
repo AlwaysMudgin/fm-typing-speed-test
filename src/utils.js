@@ -17,7 +17,7 @@ function accuracyAccumulator(total, current) {
 
 export function getAccuracyTotals(accuracyArray) {
   if (accuracyArray.length === 0)
-    return { correct: 0, incorrect: 0, percentage: 0 };
+    return { correct: 0, incorrect: 0, percentage: 100 };
   const results = accuracyArray.reduce(accuracyAccumulator, {
     correct: 0,
     incorrect: 0,
@@ -34,7 +34,13 @@ export function formatTime(seconds) {
   return `0:${seconds}`;
 }
 
-export function getWpm(words, time) {
-  if (time === 60) return 0;
-  return Math.round((words * 60) / (60 - time));
+export function getWpm(words, time, mode) {
+  let denominator;
+  if (mode === 'passage') {
+    denominator = time;
+  } else {
+    denominator = 60 - time;
+  }
+  if (denominator === 0) return 0;
+  return Math.round((words * 60) / denominator);
 }
