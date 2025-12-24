@@ -25,6 +25,15 @@ function StatsAndOptions({
   changeDifficulty,
   changeMode,
 }) {
+  function getTimeColor(time, mode) {
+    if (mode === 'timed') {
+      if (time < 16) return 'red';
+      if (time < 60) return 'yellow';
+      return;
+    }
+    if (time > 0) return 'yellow';
+  }
+
   return (
     <TopBar>
       <Info>
@@ -35,12 +44,12 @@ function StatsAndOptions({
         <Divider />
         <StatWrapper>
           <Label>Accuracy:</Label>
-          <Stat>{accuracy}%</Stat>
+          <Stat $color={accuracy < 100 ? 'red' : null}>{accuracy}%</Stat>
         </StatWrapper>
         <Divider />
         <StatWrapper>
           <Label>Time:</Label>
-          <Stat>{formatTime(time)}</Stat>
+          <Stat $color={getTimeColor(time, mode)}>{formatTime(time)}</Stat>
         </StatWrapper>
       </Info>
       <Info>
@@ -95,6 +104,7 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
   // way to update the personal best state without destroying the conditional
   // end screen based on original value?
   const isBest = useMemo(() => wpm > best, []);
+  const currentBest = useMemo(() => best, []);
 
   if (isBest) {
     newBest(wpm);
@@ -103,7 +113,7 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
   return (
     <>
       <EndWrapper>
-        {isBest ? (
+        {isBest && currentBest > 0 ? (
           <IconWrapper>
             <CheckIcon src={newPersonalBestIcon} />
           </IconWrapper>
@@ -114,10 +124,14 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
         )}
 
         <EndHeading>
-          {isBest ? 'High Score Smashed!' : 'Test Complete!'}
+          {isBest
+            ? currentBest === 0
+              ? 'Baseline Established!'
+              : 'High Score Smashed!'
+            : 'Test Complete!'}
         </EndHeading>
         <EndText>
-          {isBest
+          {isBest && currentBest > 0
             ? "You're getting faster. That was incredible typing."
             : 'Solid run. Keep pushing to beat your high score.'}
         </EndText>
@@ -501,9 +515,9 @@ const Stat = styled.p`
   display: flex;
   gap: 6px;
   color: ${(props) =>
-    props.color === 'red'
+    props.$color === 'red'
       ? 'var(--red)'
-      : props.color === 'yellow'
+      : props.$color === 'yellow'
       ? 'var(--yellow)'
       : 'white'};
   font-weight: bold;
