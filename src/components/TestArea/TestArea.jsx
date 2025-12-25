@@ -9,10 +9,10 @@ import {
   formatTime,
 } from '../../utils';
 
-import restartIcon from '../../assets/images/icon-restart.svg';
-import completedIcon from '../../assets/images/icon-completed.svg';
-import newPersonalBestIcon from '../../assets/images/icon-new-pb.svg';
-import confetti from '../../assets/images/pattern-confetti.svg';
+import RestartIcon from '../../assets/images/icon-restart.svg?react';
+import CompletedIcon from '../../assets/images/icon-completed.svg';
+import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg';
+import Confetti from '../../assets/images/pattern-confetti.svg';
 
 import Char from '../Char/Char';
 
@@ -115,11 +115,11 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
       <EndWrapper>
         {isBest && currentBest > 0 ? (
           <IconWrapper>
-            <CheckIcon src={newPersonalBestIcon} />
+            <NewPersonalBestIcon />
           </IconWrapper>
         ) : (
           <Circles>
-            <CheckIcon src={completedIcon} />
+            <CompletedIcon />
           </Circles>
         )}
 
@@ -153,13 +153,12 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
           </EndStat>
         </EndStats>
         <Again onClick={restart}>
-          {isBest ? 'Beat This Score' : 'Go Again'}{' '}
-          <Restart src={restartIcon} />
+          {isBest ? 'Beat This Score' : 'Go Again'} <RestartIcon />
         </Again>
       </EndWrapper>
       {isBest && (
         <ConfettiWrapper>
-          <Confetti src={confetti} />
+          <Confetti />
         </ConfettiWrapper>
       )}
     </>
@@ -193,12 +192,6 @@ const Circles = styled(IconWrapper)`
     hsla(140deg, 63%, 57%, 0.2) 55%,
     hsla(140deg, 63%, 57%, 0.2) 100%
   );
-`;
-
-const CheckIcon = styled.img`
-  --dimensions: 4rem;
-  width: var(--dimensions);
-  height: var(--dimensions);
 `;
 
 const EndHeading = styled.h1`
@@ -283,9 +276,6 @@ const ConfettiWrapper = styled.div`
   left: 0;
   width: 100%;
   overflow: hidden;
-`;
-
-const Confetti = styled.img`
   animation: ${pop} 1s forwards;
 `;
 
@@ -461,7 +451,7 @@ function TestArea({ best, newBest }) {
         {testPhase === 1 && (
           <RestartWrapper>
             <RestartButton onClick={handleRestart}>
-              Restart Test <Restart src={restartIcon} />
+              Restart Test <RestartIcon />
             </RestartButton>
           </RestartWrapper>
         )}
@@ -579,11 +569,6 @@ const RestartWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 2rem;
-`;
-
-const Restart = styled.img`
-  display: inline-flex;
-  align-items: center;
 `;
 
 export default TestArea;

@@ -7,7 +7,7 @@ import TestArea from './components/TestArea/TestArea';
 
 function App() {
   const [personalBest, setPersonalBest] = useLocalStorage('personal-best', 0);
-  console.log(personalBest);
+
   return (
     <Wrapper>
       <Header best={personalBest} />

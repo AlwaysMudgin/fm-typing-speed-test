@@ -1,16 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import logoLg from '../../assets/images/logo-large.svg';
+import LogoLg from '../../assets/images/logo-large.svg?react';
 // import logoSm from '../../assets/images/logo-small.svg';
-import pbIcon from '../../assets/images/icon-personal-best.svg';
+import TrophyIcon from '../../assets/images/icon-personal-best.svg?react';
 
 function Header({ best }) {
   return (
     <Wrapper>
-      <Left src={logoLg} />
+      <LogoLg />
       <Right>
-        <Trophy src={pbIcon} /> Personal Best: <Best>{best} WPM</Best>
+        <TrophyIcon /> Personal Best: <Best>{best} WPM</Best>
       </Right>
     </Wrapper>
   );
@@ -22,16 +22,12 @@ const Wrapper = styled.header`
   padding: 1.5rem 0;
 `;
 
-const Left = styled.img``;
-
 const Right = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--neutral-400);
 `;
-
-const Trophy = styled.img``;
 
 const Best = styled.span`
   color: white;
