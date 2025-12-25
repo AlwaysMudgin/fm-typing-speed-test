@@ -10,9 +10,9 @@ import {
 } from '../../utils';
 
 import RestartIcon from '../../assets/images/icon-restart.svg?react';
-import CompletedIcon from '../../assets/images/icon-completed.svg';
-import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg';
-import Confetti from '../../assets/images/pattern-confetti.svg';
+import CompletedIcon from '../../assets/images/icon-completed.svg?react';
+import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg?react';
+import Confetti from '../../assets/images/pattern-confetti.svg?react';
 
 import Char from '../Char/Char';
 
@@ -25,15 +25,6 @@ function StatsAndOptions({
   changeDifficulty,
   changeMode,
 }) {
-  function getTimeColor(time, mode) {
-    if (mode === 'timed') {
-      if (time < 16) return 'red';
-      if (time < 60) return 'yellow';
-      return;
-    }
-    if (time > 0) return 'yellow';
-  }
-
   return (
     <TopBar>
       <Info>
@@ -44,12 +35,12 @@ function StatsAndOptions({
         <Divider />
         <StatWrapper>
           <Label>Accuracy:</Label>
-          <Stat $color={accuracy < 100 ? 'red' : null}>{accuracy}%</Stat>
+          <Stat>{accuracy}%</Stat>
         </StatWrapper>
         <Divider />
         <StatWrapper>
           <Label>Time:</Label>
-          <Stat $color={getTimeColor(time, mode)}>{formatTime(time)}</Stat>
+          <Stat>{formatTime(time)}</Stat>
         </StatWrapper>
       </Info>
       <Info>
@@ -215,7 +206,7 @@ const EndStats = styled.div`
 
 const EndStat = styled.div`
   border: 1px solid var(--neutral-500);
-  flex-grow: 1;
+  flex: 1;
   padding: 1rem 1.5rem;
   border-radius: 8px;
 `;
@@ -504,12 +495,7 @@ const Label = styled.p`
 const Stat = styled.p`
   display: flex;
   gap: 6px;
-  color: ${(props) =>
-    props.$color === 'red'
-      ? 'var(--red)'
-      : props.$color === 'yellow'
-      ? 'var(--yellow)'
-      : 'white'};
+  color: white;
   font-weight: bold;
 `;
 
