@@ -50,7 +50,6 @@ function StatsAndOptions({
         </StatWrapper>
       </Info>
       <Options>
-        {/* Desktop */}
         <OptionButtons>
           <Label>Difficulty:</Label>
           <Stat>
@@ -117,30 +116,31 @@ function StatsAndOptions({
 
 const OptionSelect = styled.select`
   display: none;
-  color: white;
-  border-color: var(--neutral-500);
-
-  &,
-  &::picker(select) {
-    appearance: base-select;
-  }
-
-  &::picker-icon {
-    display: none;
-  }
-
-  &::picker(select) {
-    border-radius: 8px;
-    background-color: var(--neutral-800);
-    color: white;
-    border: none;
-    margin-top: 8px;
-  }
 
   @media (max-width: ${MOBILE_BREAKPOINT}) {
+    &,
+    &::picker(select) {
+      appearance: base-select;
+    }
+
+    &::picker-icon {
+      display: none;
+    }
+
+    &::picker(select) {
+      border-radius: 8px;
+      background-color: var(--neutral-800);
+      color: white;
+      border: none;
+      margin-top: 8px;
+    }
+
     display: flex;
     align-items: center;
+    justify-content: center;
     flex: 1 1 50%;
+    color: white;
+    border-color: var(--neutral-500);
   }
 `;
 
@@ -549,7 +549,9 @@ const Info = styled.div`
 `;
 
 const Options = styled(Info)`
-  flex: 1;
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    flex: 1;
+  }
 `;
 
 const StatWrapper = styled.div`
