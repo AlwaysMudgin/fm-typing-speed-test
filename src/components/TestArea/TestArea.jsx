@@ -1,7 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import { EXCEPTED_KEYS, TIMER_SECONDS } from '../../constants';
+import {
+  EXCEPTED_KEYS,
+  TIMER_SECONDS,
+  MOBILE_BREAKPOINT,
+} from '../../constants';
+
 import {
   getAccuracyTotals,
   getTestArray,
@@ -13,6 +18,7 @@ import RestartIcon from '../../assets/images/icon-restart.svg?react';
 import CompletedIcon from '../../assets/images/icon-completed.svg?react';
 import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg?react';
 import Confetti from '../../assets/images/pattern-confetti.svg?react';
+import DownArrow from '../../assets/images/icon-down-arrow.svg?react';
 
 import Char from '../Char/Char';
 
@@ -43,8 +49,9 @@ function StatsAndOptions({
           <Stat>{formatTime(time)}</Stat>
         </StatWrapper>
       </Info>
-      <Info>
-        <StatWrapper>
+      <Options>
+        {/* Desktop */}
+        <OptionButtons>
           <Label>Difficulty:</Label>
           <Stat>
             <Button
@@ -66,34 +73,94 @@ function StatsAndOptions({
               Hard
             </Button>
           </Stat>
-        </StatWrapper>
-        <Divider />
-        <StatWrapper>
+          <Divider />
           <Label>Mode:</Label>
-          <Stat>
-            <Button
-              onClick={() => changeMode('timed')}
-              $active={mode === 'timed'}
-            >
-              Timed (60s)
-            </Button>
-            <Button
-              onClick={() => changeMode('passage')}
-              $active={mode === 'passage'}
-            >
-              Passage
-            </Button>
-          </Stat>
-        </StatWrapper>
-      </Info>
+          <Button
+            onClick={() => changeMode('timed')}
+            $active={mode === 'timed'}
+          >
+            Timed (60s)
+          </Button>
+          <Button
+            onClick={() => changeMode('passage')}
+            $active={mode === 'passage'}
+          >
+            Passage
+          </Button>
+        </OptionButtons>
+        {/* Mobile */}
+        <OptionSelect
+          name="difficulty"
+          value={difficulty}
+          onChange={(e) => changeDifficulty(e.target.value)}
+        >
+          <button>
+            <selectedcontent></selectedcontent>
+            <DownArrow />
+          </button>
+          <Option value="easy">Easy</Option>
+          <Option value="medium">Medium</Option>
+          <Option value="hard">Hard</Option>
+        </OptionSelect>
+        <OptionSelect name="mode">
+          <button>
+            <selectedcontent></selectedcontent>
+            <DownArrow />
+          </button>
+          <Option value="timed">Timed (60s)</Option>
+          <Option value="passage">Passage</Option>
+        </OptionSelect>
+      </Options>
     </TopBar>
   );
 }
 
+const OptionSelect = styled.select`
+  display: none;
+  color: white;
+  border-color: var(--neutral-500);
+
+  &,
+  &::picker(select) {
+    appearance: base-select;
+  }
+
+  &::picker-icon {
+    display: none;
+  }
+
+  &::picker(select) {
+    border-radius: 8px;
+    background-color: var(--neutral-800);
+    color: white;
+    border: none;
+    margin-top: 8px;
+  }
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    display: flex;
+    align-items: center;
+    flex: 1 1 50%;
+  }
+`;
+
+const Option = styled.option`
+  padding: 6px;
+  border: 1px solid transparent;
+
+  &::checkmark {
+    display: none;
+  }
+
+  &:checked {
+    color: var(--blue-600);
+  }
+`;
+
 function EndScreen({ wpm, accuracy, restart, best, newBest }) {
-  // This feels hacky and the safety protocols hate it - is there a better
-  // way to update the personal best state without destroying the conditional
-  // end screen based on original value?
+  // This feels hacky, but it's the only way I could figure to
+  // update the personal best without re-rendering a non-best
+  // end screen
   const isBest = useMemo(() => wpm > best, []);
   const currentBest = useMemo(() => best, []);
 
@@ -401,15 +468,15 @@ function TestArea({ best, newBest }) {
     setMode(next);
     if (next === 'timed') {
       setTime(TIMER_SECONDS);
+    } else {
+      setTime(0);
     }
-    setTime(0);
   }
 
   function handleRestart() {
     setCurrentIndex(0);
     setAccuracyArray([]);
     setInputArray([]);
-    setTime(TIMER_SECONDS);
     setNumWords(0);
     setTestPhase(0);
   }
@@ -481,28 +548,41 @@ const Info = styled.div`
   gap: 1rem;
 `;
 
+const Options = styled(Info)`
+  flex: 1;
+`;
+
 const StatWrapper = styled.div`
   display: flex;
   gap: 0.75rem;
   align-items: center;
   flex-wrap: wrap;
+  font-size: 1.5rem;
 `;
 
 const Label = styled.p`
   color: var(--neutral-400);
 `;
 
-const Stat = styled.p`
+const Stat = styled.div`
   display: flex;
+  align-items: center;
   gap: 6px;
   color: white;
   font-weight: bold;
 `;
 
+const OptionButtons = styled(Stat)`
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    display: none;
+  }
+`;
+
 const Divider = styled.div`
   width: 1px;
-  height: 100%;
-  background-color: var(--neutral-800);
+  align-self: stretch;
+  background-color: var(--neutral-500);
+  margin: 0 8px;
 `;
 
 const Passage = styled.div`
