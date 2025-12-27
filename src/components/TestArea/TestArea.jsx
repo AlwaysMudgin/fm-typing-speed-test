@@ -17,8 +17,10 @@ import {
 import RestartIcon from '../../assets/images/icon-restart.svg?react';
 import CompletedIcon from '../../assets/images/icon-completed.svg?react';
 import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg?react';
-import Confetti from '../../assets/images/pattern-confetti.svg?react';
+import confetti from '../../assets/images/pattern-confetti.svg?url';
 import DownArrow from '../../assets/images/icon-down-arrow.svg?react';
+import yellowStar from '../../assets/images/pattern-star-1.svg?url';
+import redStar from '../../assets/images/pattern-star-2.svg?url';
 
 function StatsAndOptions({
   wpm,
@@ -189,68 +191,91 @@ function EndScreen({ wpm, accuracy, restart, best, newBest }) {
     newBest(wpm);
   }
 
+  const status = (() => {
+    if (isBest) {
+      if (currentBest === 0) return 'baseline';
+      return 'smashed';
+    }
+    return 'completed';
+  })();
+
   return (
     <>
       <EndWrapper>
-        {isBest && currentBest > 0 ? (
-          <IconWrapper>
-            <NewPersonalBestIcon />
-          </IconWrapper>
-        ) : (
-          <Circles>
-            <CompletedIcon />
-          </Circles>
-        )}
+        <EndContent>
+          {status === 'smashed' ? (
+            <IconWrapper>
+              <NewPersonalBestIcon />
+            </IconWrapper>
+          ) : (
+            <Circles>
+              <CompletedIcon />
+            </Circles>
+          )}
 
-        <EndHeading>
-          {isBest
-            ? currentBest === 0
-              ? 'Baseline Established!'
-              : 'High Score Smashed!'
-            : 'Test Complete!'}
-        </EndHeading>
-        <EndText>
-          {isBest && currentBest > 0
-            ? "You're getting faster. That was incredible typing."
-            : 'Solid run. Keep pushing to beat your high score.'}
-        </EndText>
-        <EndStats>
-          <EndStat>
-            <Label>WPM:</Label>
-            <Stat>{wpm}</Stat>
-          </EndStat>
-          <EndStat>
-            <Label>Accuracy:</Label>
-            <Stat>{accuracy.percentage}%</Stat>
-          </EndStat>
-          <EndStat>
-            <Label>Characters:</Label>
-            <Stat>
-              <Correct>{accuracy.correct}</Correct>/
-              <Incorrect>{accuracy.incorrect}</Incorrect>
-            </Stat>
-          </EndStat>
-        </EndStats>
-        <Again onClick={restart}>
-          {isBest ? 'Beat This Score' : 'Go Again'} <RestartIcon />
-        </Again>
+          <EndHeading>
+            {status === 'baseline' && 'Baseline Established!'}
+            {status === 'smashed' && 'High Score Smashed!'}
+            {status === 'completed' && 'Test Complete!'}
+          </EndHeading>
+          <EndText>
+            {status === 'baseline' &&
+              'You’ve set the bar. Now the real challenge begins—time to beat it.'}
+            {status === 'smashed' &&
+              "You're getting faster. That was incredible typing."}
+            {status === 'completed' &&
+              'Solid run. Keep pushing to beat your high score.'}
+          </EndText>
+          <EndStats>
+            <EndStat>
+              <Label>WPM:</Label>
+              <Stat>{wpm}</Stat>
+            </EndStat>
+            <EndStat>
+              <Label>Accuracy:</Label>
+              <Stat>{accuracy.percentage}%</Stat>
+            </EndStat>
+            <EndStat>
+              <Label>Characters:</Label>
+              <Stat>
+                <Correct>{accuracy.correct}</Correct>/
+                <Incorrect>{accuracy.incorrect}</Incorrect>
+              </Stat>
+            </EndStat>
+          </EndStats>
+          <Again onClick={restart}>
+            {status === 'completed' ? 'Go Again' : 'Beat This Score'}{' '}
+            <RestartIcon />
+          </Again>
+        </EndContent>
       </EndWrapper>
-      {isBest && (
+      {status === 'smashed' ? (
         <ConfettiWrapper>
-          <Confetti />
+          <Confetti src={confetti} />
         </ConfettiWrapper>
+      ) : (
+        <>
+          <RedStar src={redStar} />
+          <YellowStar src={yellowStar} />
+        </>
       )}
     </>
   );
 }
 
 const EndWrapper = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
+  background-color: var(--neutral-900);
+`;
+
+const EndContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--neutral-900);
+  max-width: 33rem;
+  margin: 0 auto;
 `;
 
 const IconWrapper = styled.div`
@@ -279,17 +304,31 @@ const EndHeading = styled.h1`
   font-weight: bold;
   letter-spacing: 0.4px;
   line-height: 1.36;
+  text-align: center;
+  margin-top: 2rem;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    font-size: 1.5rem;
+    margin-top: 0.75rem;
+  }
 `;
 
 const EndText = styled.p`
   color: var(--neutral-400);
   margin-bottom: 1rem;
+  text-align: center;
 `;
 
 const EndStats = styled.div`
   display: flex;
+  width: 100%;
   gap: 1.25rem;
   margin: 1rem 0;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const EndStat = styled.div`
@@ -323,21 +362,67 @@ const Button = styled.button`
     color: var(--blue-400);
     border-color: var(--blue-400);
   }
+
+  &:focus {
+    outline: 2px solid var(--blue-400);
+    outline-offset: 2px;
+  }
 `;
 
-const RestartButton = styled(Button)`
+const RestartButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   background-color: var(--neutral-800);
+  color: white;
   border: none;
-  padding: 0.25rem 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: max-content;
+  font-weight: bold;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: 2px solid var(--blue-400);
+    outline-offset: 2px;
+  }
 `;
 
 const Again = styled(RestartButton)`
   color: var(--neutral-900);
   background-color: white;
   margin-top: 1rem;
+`;
+
+const RedStar = styled.img`
+  --dimensions: 32px;
+  width: var(--dimensions);
+  height: var(--dimensions);
+  position: absolute;
+  left: 0;
+  top: 35%;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    --dimensions: 21px;
+    top: 15%;
+  }
+`;
+
+const YellowStar = styled.img`
+  --dimensions: 72px;
+  width: var(--dimensions);
+  height: var(--dimensions);
+  position: absolute;
+  right: 0;
+  bottom: -5%;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    --dimensions: 39px;
+    bottom: -10%;
+  }
 `;
 
 const pop = keyframes`
@@ -349,13 +434,24 @@ const pop = keyframes`
     }
 `;
 
+const Confetti = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
 const ConfettiWrapper = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
+  height: 35dvh;
   overflow: hidden;
   animation: ${pop} 1s forwards;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    height: 12dvh;
+  }
 `;
 
 function TestArea({ best, newBest }) {
@@ -618,6 +714,10 @@ const TopBar = styled.div`
   padding-bottom: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    justify-content: center;
+  }
 `;
 
 const Info = styled.div`
