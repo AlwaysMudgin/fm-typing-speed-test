@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import {
@@ -494,17 +494,19 @@ function TestArea({ best, newBest }) {
           changeMode={changeMode}
         />
         <Passage>
-          {testArray.map((char, index) => {
-            return (
-              <Char key={index} char={char} status={getCharStatus(index)} />
-            );
-          })}
-          {testPhase === 0 && (
-            <StartDialog onClick={() => setTestPhase(1)}>
-              <StartButton>Start Typing Test</StartButton>
-              <StartText>Or click the text and start typing</StartText>
-            </StartDialog>
-          )}
+          <PassageContent>
+            {testArray.map((char, index) => {
+              return (
+                <Char key={index} char={char} status={getCharStatus(index)} />
+              );
+            })}
+            {testPhase === 0 && (
+              <StartDialog onClick={() => setTestPhase(1)}>
+                <StartButton>Start Typing Test</StartButton>
+                <StartText>Or click the text and start typing</StartText>
+              </StartDialog>
+            )}
+          </PassageContent>
         </Passage>
         {testPhase === 1 && (
           <RestartWrapper>
@@ -537,9 +539,9 @@ const TopBar = styled.div`
   display: flex;
   color: var(--neutral-400);
   justify-content: space-between;
-  padding: 1rem 0;
+  padding-bottom: 1rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const Info = styled.div`
@@ -556,6 +558,7 @@ const Options = styled(Info)`
 
 const StatWrapper = styled.div`
   display: flex;
+  justify-content: center;
   gap: 0.75rem;
   align-items: center;
   flex-wrap: wrap;
@@ -564,6 +567,10 @@ const StatWrapper = styled.div`
 
 const Label = styled.p`
   color: var(--neutral-400);
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    font-size: 1rem;
+  }
 `;
 
 const Stat = styled.div`
@@ -588,24 +595,39 @@ const Divider = styled.div`
 `;
 
 const Passage = styled.div`
-  position: relative;
   font-size: 2.5rem;
   padding: 1rem 0;
   border-bottom: 1px solid var(--neutral-800);
   border-top: 1px solid var(--neutral-800);
+  position: relative;
+
+  @media (max-width: ${MOBILE_BREAKPOINT}) {
+    font-size: 2rem;
+  }
+`;
+
+const PassageContent = styled.div`
+  max-height: 55dvh;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const StartDialog = styled.div`
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  width: 100%;
-  height: 100%;
   background: transparent;
   backdrop-filter: blur(7px);
   border: none;
@@ -631,6 +653,7 @@ const StartButton = styled(Button)`
 
 const StartText = styled.p`
   color: white;
+  text-align: center;
 `;
 
 const RestartWrapper = styled.div`
