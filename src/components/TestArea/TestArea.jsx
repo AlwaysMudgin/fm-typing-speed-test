@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 import {
   EXCEPTED_KEYS,
@@ -14,15 +14,11 @@ import {
   formatTime,
 } from '../../utils';
 
-import useIsVisible from '../../hooks/useIsVisible';
-
 import RestartIcon from '../../assets/images/icon-restart.svg?react';
 import CompletedIcon from '../../assets/images/icon-completed.svg?react';
 import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg?react';
 import Confetti from '../../assets/images/pattern-confetti.svg?react';
 import DownArrow from '../../assets/images/icon-down-arrow.svg?react';
-
-// import Char from '../Char/Char';
 
 function StatsAndOptions({
   wpm,
@@ -356,8 +352,6 @@ function TestArea({ best, newBest }) {
 
   const currentRef = useRef();
   const containerRef = useRef();
-  const isCurrentVisible = useIsVisible(currentRef, containerRef);
-  console.log('current visible: ', isCurrentVisible);
 
   const { correct, incorrect, percentage } = useMemo(
     () => getAccuracyTotals(accuracyArray),
@@ -458,9 +452,32 @@ function TestArea({ best, newBest }) {
   }, [handleKeyDown]);
 
   useEffect(() => {
-    if (isCurrentVisible) return;
-    currentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [isCurrentVisible, currentRef]);
+    const current = currentRef.current;
+    const container = containerRef.current;
+
+    if (!current || !container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      },
+      {
+        root: container,
+        rootMargin: '0px',
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(current);
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [currentIndex]);
 
   function getCharStatus(index) {
     if (index < currentIndex) {
