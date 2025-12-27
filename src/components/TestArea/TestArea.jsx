@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 import {
   EXCEPTED_KEYS,
@@ -14,13 +14,15 @@ import {
   formatTime,
 } from '../../utils';
 
+import useIsVisible from '../../hooks/useIsVisible';
+
 import RestartIcon from '../../assets/images/icon-restart.svg?react';
 import CompletedIcon from '../../assets/images/icon-completed.svg?react';
 import NewPersonalBestIcon from '../../assets/images/icon-new-pb.svg?react';
 import Confetti from '../../assets/images/pattern-confetti.svg?react';
 import DownArrow from '../../assets/images/icon-down-arrow.svg?react';
 
-import Char from '../Char/Char';
+// import Char from '../Char/Char';
 
 function StatsAndOptions({
   wpm,
@@ -101,7 +103,11 @@ function StatsAndOptions({
           <Option value="medium">Medium</Option>
           <Option value="hard">Hard</Option>
         </OptionSelect>
-        <OptionSelect name="mode">
+        <OptionSelect
+          name="mode"
+          value={mode}
+          onChange={(e) => changeMode(e.target.value)}
+        >
           <button>
             <selectedcontent></selectedcontent>
             <DownArrow />
@@ -348,10 +354,16 @@ function TestArea({ best, newBest }) {
   const [numWords, setNumWords] = useState(0);
   const [testPhase, setTestPhase] = useState(0);
 
+  const currentRef = useRef();
+  const containerRef = useRef();
+  const isCurrentVisible = useIsVisible(currentRef, containerRef);
+  console.log('current visible: ', isCurrentVisible);
+
   const { correct, incorrect, percentage } = useMemo(
     () => getAccuracyTotals(accuracyArray),
     [accuracyArray]
   );
+
   const wpm = useMemo(
     () => getWpm(numWords, time, mode),
     [numWords, time, mode]
@@ -401,12 +413,10 @@ function TestArea({ best, newBest }) {
 
     function timeDown() {
       setTime((prev) => prev - 1);
-      console.log('tick down');
     }
 
     function timeUp() {
       setTime((prev) => prev + 1);
-      console.log('tick up');
     }
 
     if (testPhase === 1) {
@@ -446,6 +456,11 @@ function TestArea({ best, newBest }) {
 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  useEffect(() => {
+    if (isCurrentVisible) return;
+    currentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [isCurrentVisible, currentRef]);
 
   function getCharStatus(index) {
     if (index < currentIndex) {
@@ -494,10 +509,15 @@ function TestArea({ best, newBest }) {
           changeMode={changeMode}
         />
         <Passage>
-          <PassageContent>
+          <PassageContent ref={containerRef}>
             {testArray.map((char, index) => {
+              const ref = index === currentIndex ? currentRef : null;
+              const status = getCharStatus(index);
+
               return (
-                <Char key={index} char={char} status={getCharStatus(index)} />
+                <Char key={index} ref={ref} $status={status}>
+                  {char}
+                </Char>
               );
             })}
             {testPhase === 0 && (
@@ -615,6 +635,21 @@ const PassageContent = styled.div`
   &::webkit-scrollbar {
     display: none;
   }
+`;
+
+const Char = styled.span`
+  color: ${(props) =>
+    props.$status === 'correct'
+      ? 'var(--green)'
+      : props.$status === 'incorrect'
+      ? 'var(--red)'
+      : 'var(--neutral-400)'};
+
+  text-decoration: ${(props) =>
+    props.$status === 'incorrect' ? 'underline' : ' none'};
+
+  background-color: ${(props) =>
+    props.$status === 'current' ? 'hsl(240deg, 1%, 59%, 0.3)' : 'transparent'};
 `;
 
 const StartDialog = styled.div`
