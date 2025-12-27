@@ -509,13 +509,33 @@ function TestArea({ best, newBest }) {
   function changeDifficulty(next) {
     if (next === difficulty) return;
     setDifficulty(next);
-    handleRestart();
+    setCurrentIndex(0);
+    setAccuracyArray([]);
+    setInputArray([]);
+    setNumWords(0);
+    setTestPhase(0);
+    setTestArray(getTestArray(next));
+    if (mode === 'timed') {
+      setTime(TIMER_SECONDS);
+    } else {
+      setTime(0);
+    }
   }
 
   function changeMode(next) {
     if (next === mode) return;
     setMode(next);
-    handleRestart();
+    setCurrentIndex(0);
+    setAccuracyArray([]);
+    setInputArray([]);
+    setNumWords(0);
+    setTestPhase(0);
+    setTestArray(getTestArray(difficulty));
+    if (next === 'timed') {
+      setTime(TIMER_SECONDS);
+    } else {
+      setTime(0);
+    }
   }
 
   function handleRestart() {
