@@ -29,6 +29,21 @@ function StatsAndOptions({
   changeDifficulty,
   changeMode,
 }) {
+  const timeColor = useMemo(() => {
+    if (mode === 'timed') {
+      if (time < 10) return 'red';
+      if (time < TIMER_SECONDS) return 'yellow';
+    } else {
+      if (time > 0) return 'yellow';
+    }
+  }, [mode, time]);
+
+  const accuracyColor = useMemo(() => {
+    if (accuracy < 90) return 'red';
+    if (accuracy < 97) return 'yellow';
+    return 'green';
+  }, [accuracy]);
+
   return (
     <TopBar>
       <Info>
@@ -39,12 +54,12 @@ function StatsAndOptions({
         <Divider />
         <StatWrapper>
           <Label>Accuracy:</Label>
-          <Stat>{accuracy}%</Stat>
+          <ColorStat color={accuracyColor}>{accuracy}%</ColorStat>
         </StatWrapper>
         <Divider />
         <StatWrapper>
           <Label>Time:</Label>
-          <Stat>{formatTime(time)}</Stat>
+          <ColorStat color={timeColor}>{formatTime(time)}</ColorStat>
         </StatWrapper>
       </Info>
       <Options>
@@ -149,6 +164,10 @@ const OptionSelect = styled.select`
 const Option = styled.option`
   padding: 6px;
   border: 1px solid transparent;
+
+  &:not(:last-of-type) {
+    border-bottom-color: var(--neutral-500);
+  }
 
   &::checkmark {
     display: none;
@@ -489,20 +508,14 @@ function TestArea({ best, newBest }) {
 
   function changeDifficulty(next) {
     if (next === difficulty) return;
-    handleRestart();
     setDifficulty(next);
-    setTestArray(getTestArray(next));
+    handleRestart();
   }
 
   function changeMode(next) {
     if (next === mode) return;
-    handleRestart();
     setMode(next);
-    if (next === 'timed') {
-      setTime(TIMER_SECONDS);
-    } else {
-      setTime(0);
-    }
+    handleRestart();
   }
 
   function handleRestart() {
@@ -511,6 +524,12 @@ function TestArea({ best, newBest }) {
     setInputArray([]);
     setNumWords(0);
     setTestPhase(0);
+    setTestArray(getTestArray(difficulty));
+    if (mode === 'timed') {
+      setTime(TIMER_SECONDS);
+    } else {
+      setTime(0);
+    }
   }
 
   if (testPhase !== 2)
@@ -616,6 +635,18 @@ const Stat = styled.div`
   gap: 6px;
   color: white;
   font-weight: bold;
+`;
+
+const ColorStat = styled(Stat)`
+  will-change: color;
+  color: ${(props) =>
+    props.color === 'green'
+      ? 'var(--green)'
+      : props.color === 'yellow'
+      ? 'var(--yellow)'
+      : props.color === 'red'
+      ? 'var(--red)'
+      : 'white'};
 `;
 
 const OptionButtons = styled(Stat)`
